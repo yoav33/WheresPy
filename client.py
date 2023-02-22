@@ -1,9 +1,8 @@
-# DS/G CLIENT MAIN
+# WheresPy? CLIENT MAIN
 import os.path
 import zipfile
 import time
 import socket
-import gnupg
 import configparser
 import datetime
 import urllib.request
@@ -32,6 +31,7 @@ print("device name: " + (config.get('client', 'devicename')))
 # main loop (write files)
 while ((config.get('client', 'dormant'))=="off"):
     print("----- creating new report -----")
+    ti = time.time()
     now = datetime.datetime.now()
     date_string = now.strftime('%y-%m-%d %H-%M')
     os.mkdir(date_string)
@@ -95,5 +95,14 @@ while ((config.get('client', 'dormant'))=="off"):
     if not os.path.isfile('filekey.key'):
         print("filekey.key not found! skipping encryption...")
 
-    time.sleep(60)
+    tf = time.time()
+    totalt = tf-ti
+    print(f"time taken to create file: {totalt} seconds")
+
+    # send file
+
+    intfreq = int(config.get('client', 'freq'))
+    print(f"waiting {intfreq}s before creating new report.")
+    print()
+    time.sleep(intfreq)
 
