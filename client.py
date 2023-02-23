@@ -9,10 +9,11 @@ import urllib.request
 import subprocess
 from mss import mss
 from cryptography.fernet import Fernet
+import platform
 
-print("-----------")
+print("----------------")
 print("WheresPy? CLIENT")
-print("-----------")
+print("----------------")
 
 if not os.path.isfile('wp.conf'):
     print("wp.conf file does not exist! aborting.")
@@ -44,7 +45,9 @@ while ((config.get('client', 'dormant'))=="off"):
     f.write("Find on GitHub: https://github.com/yoav33/WheresPy\n")
     f.write("\n")
     f.write("Device name: " + config.get('client', 'devicename') + "\n")
-    f.write("Report timestamp: " + date_string + "\n")
+    f.write(f"Platform info: {(platform.uname())} + \n")
+    f.write("\n")
+    f.write("Report timestamp: " + date_string + " (DD-MM-YY HH-MM)\n")
     f.write("\n")
     f.close()
 
@@ -101,8 +104,22 @@ while ((config.get('client', 'dormant'))=="off"):
 
     # send file
 
+
     intfreq = int(config.get('client', 'freq'))
     print(f"waiting {intfreq}s before creating new report.")
     print()
     time.sleep(intfreq)
 
+# dormant mode
+while ((config.get('client', 'dormany'))=="on"):
+
+    # first connect to DORMANT server
+    s = socket.socket(socket.AF_INET,
+                      socket.SOCK_STREAM)
+    s.connect((config.get('server', 'serverip'), config.get('server', 'serverport')))
+    msg = s.recv(1024)
+    while msg:
+        print('Received:' + msg.decode())
+        msg = s.recv(1024)
+        if msg=="screenshot":
+            print("screenshot")

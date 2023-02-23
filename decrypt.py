@@ -17,5 +17,5 @@ with open(decryptfile, 'rb') as enc_file:
 decrypted = fernet.decrypt(encrypted)
 with open(decryptfile, 'wb') as dec_file:
     dec_file.write(decrypted)
-print(decryptfile + "has been decrypted. you can now open it.")
+print(decryptfile + " has been decrypted. you can now open it.")
 exit()
