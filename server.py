@@ -9,11 +9,11 @@ print("use 'dormantserver.py' for that.")
 print()
 
 # count files in server-in and print count
-def count():
+def count(dir):
     count = 0
-    for f in (os.listdir(indir)):
+    for f in (os.listdir(dir)):
         count += 1
-    print(f"files in {indir}: {count}")
+    print(f"files in {dir}: {count}")
 
 # locate server-in folder. important!
 # potential waste of lines? i don't care. i think the input is neat.
@@ -24,10 +24,9 @@ if not os.path.isdir('server-in'):
         indir = 'server-in'
     else:
         indir = dirin
-    exit()
 else:
     indir = 'server-in'
     print("server-in found!")
 
 # print(f"files in folder: {os.listdir(indir)})")
-count()
+count(indir)

@@ -29,6 +29,14 @@ if ((config.get('general', 'runsetup'))=="y"):
 
 print("device name: " + (config.get('client', 'devicename')))
 
+# function: write out tree
+def Test2(rootDir):
+    for lists in os.listdir(rootDir):
+        path = os.path.join(rootDir, lists)
+        # print (path)
+        if os.path.isdir(path):
+            Test2(path)
+
 # main loop (write files)
 while ((config.get('client', 'dormant'))=="off"):
     print("----- creating new report -----")
@@ -50,6 +58,20 @@ while ((config.get('client', 'dormant'))=="off"):
     f.write("Report timestamp: " + date_string + " (DD-MM-YY HH-MM)\n")
     f.write("\n")
     f.close()
+
+    if ((config.get('client', 'dirspy'))=="N"):
+        print("dirspy set to N. skipping...")
+    else:
+        dirspy = (config.get('client', 'dirspy'))
+        print("creating dirSpy for " + dirspy)
+        Test2(dirspy)
+        f = open("dirspy.txt", "w+")
+        f.write("WheresPy? DirSpy for:" + "\n")
+        f.write(dirspy + "\n")
+        f.write("\n")
+        for lists in os.listdir(dirspy):
+            f.write(os.path.join(dirspy, lists) + "\n")
+        f.close()
 
     # make networking text file:
     external_ip = urllib.request.urlopen('https://ident.me').read().decode('utf8')
