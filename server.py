@@ -1,4 +1,4 @@
-# WheresPy? sPyWare - SERVER MAIN
+# WheresPy? sPyWhere - server main
 import os
 
 print("----------------")

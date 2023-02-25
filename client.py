@@ -1,4 +1,4 @@
-# WheresPy? CLIENT MAIN
+# WheresPy? sPyWhere - client main
 import os.path
 import zipfile
 import time
@@ -22,7 +22,7 @@ if not os.path.isfile('wp.conf'):
 config = configparser.ConfigParser()
 config.read(r'wp.conf')
 if ((config.get('general', 'runsetup'))=="y"):
-    print("DS/G has not been configured yet!")
+    print("WheresPy? has not been configured yet!")
     print("you can configure through setup.py or by manually editing wp.conf.")
     input("press ENTER to exit.")
     exit()
@@ -59,7 +59,7 @@ while ((config.get('client', 'dormant'))=="off"):
     f.write("\n")
     f.close()
 
-    if ((config.get('client', 'dirspy'))=="N"):
+    if ((config.get('client', 'dirspy'))=="n"):
         print("dirspy set to N. skipping...")
     else:
         dirspy = (config.get('client', 'dirspy'))
@@ -74,16 +74,23 @@ while ((config.get('client', 'dormant'))=="off"):
         f.close()
 
     # make networking text file:
-    external_ip = urllib.request.urlopen('https://ident.me').read().decode('utf8')
-    print("public ip: " + external_ip)
+    if ((config.get('client', 'sendip'))=="y"):
+        external_ip = urllib.request.urlopen('https://ident.me').read().decode('utf8')
+        print("public ip: " + external_ip)
     f = open("networking.txt", "w+")
     f.write(config.get('client', 'devicename') + " networking details\n")
-    f.write("Public IP: " + external_ip + "\n")
+    if ((config.get('client', 'sendip')) == "y"):
+        f.write("Public IP: " + external_ip + "\n")
+    else:
+        f.write("Public IP: [disabled in config]")
     f.write("IPv4 address: " + socket.gethostbyname(socket.gethostname()) + "\n")
-    devices = subprocess.check_output(['netsh', 'wlan', 'show', 'network'])
-    devices = devices.decode('ascii')
-    devices = devices.replace("\r", "")
-    f.write(devices)
+    if ((config.get('client', 'sendnetworks')) == "y"):
+        devices = subprocess.check_output(['netsh', 'wlan', 'show', 'network'])
+        devices = devices.decode('ascii')
+        devices = devices.replace("\r", "")
+        f.write(devices)
+    else:
+        f.write("Local networks: [disabled in config]")
     f.close()
 
     # screenshot
@@ -106,19 +113,22 @@ while ((config.get('client', 'dormant'))=="off"):
     os.rmdir(date_string)
 
     #encrypt now
-    if os.path.isfile('filekey.key'):
-        print("encrypting...")
-        with open('filekey.key', 'rb') as filekey:
-            key = filekey.read()
-        fernet = Fernet(key)
-        with open(date_string + (".zip"), 'rb') as file:
-            original = file.read()
-        encrypted = fernet.encrypt(original)
-        with open(date_string + (".zip"), 'wb') as encrypted_file:
-            encrypted_file.write(encrypted)
-        print("encryption finished")
-    if not os.path.isfile('filekey.key'):
-        print("filekey.key not found! skipping encryption...")
+    if ((config.get('client', 'cancelencryption'))=="n"):
+        if os.path.isfile('filekey.key'):
+            print("encrypting...")
+            with open('filekey.key', 'rb') as filekey:
+                key = filekey.read()
+            fernet = Fernet(key)
+            with open(date_string + (".zip"), 'rb') as file:
+                original = file.read()
+            encrypted = fernet.encrypt(original)
+            with open(date_string + (".zip"), 'wb') as encrypted_file:
+                encrypted_file.write(encrypted)
+            print("encryption finished")
+        if not os.path.isfile('filekey.key'):
+            print("filekey.key not found! skipping encryption...")
+    else:
+        print("cancelencryption has been set to Y. skipping encryption.")
 
     tf = time.time()
     totalt = tf-ti
@@ -126,14 +136,13 @@ while ((config.get('client', 'dormant'))=="off"):
 
     # send file
 
-
     intfreq = int(config.get('client', 'freq'))
     print(f"waiting {intfreq}s before creating new report.")
     print()
     time.sleep(intfreq)
 
 # dormant mode
-while ((config.get('client', 'dormany'))=="on"):
+while ((config.get('client', 'dormant'))=="on"):
 
     # first connect to DORMANT server
     s = socket.socket(socket.AF_INET,
